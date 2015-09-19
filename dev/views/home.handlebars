@@ -10,7 +10,7 @@
   <div class="md-content">
     <h3>Username</h3>
     <div>
-      <input type="text" name="userName" id="userName" placeholder="Default">
+      <input type="text" name="userName" id="userName" placeholder="Enter your username..">
       <button class="mdl-button mdl-js-button mdl-button--primary" onclick="closeUsername()" id="close">
       Close
       </button>
@@ -66,7 +66,7 @@ document.getElementById('userName').onkeyup = function (e) {
   <div class="md-content">
     <h3>Search</h3>
     <div>
-      <input type="text" name="search" id="search">
+      <input type="text" name="search" id="search" placeholder="Keywords e.g mechanics">
       <button class="mdl-button mdl-js-button mdl-button--primary" onclick="closeSearch()" id="close">
       Close
       </button>
@@ -94,6 +94,8 @@ document.getElementById('search').onkeyup = function (e) {
   </div>
 </div>
 
-
 <div class="md-overlay"></div>
 <!-- END OF MODALS -->
+
+<div class="game" id="game">
+</div>

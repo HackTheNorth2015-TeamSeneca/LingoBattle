@@ -37,7 +37,7 @@
     from = document.getElementById('languageFrom').value;
     to = document.getElementById('languageTo').value;
     if(typeof(Storage) !== "undefined") {
-      sessionStorage.LanguageFrom = temp;
+      sessionStorage.LanguageFrom = from;
       sessionStorage.LanguageTo = to;
     }
     el = document.getElementById('modal-3');
@@ -102,7 +102,9 @@
             wordsPairs: JSON.parse(httpRequest.responseText).pairs
           };
           var gp = new GamePlay(settings);
+          document.getElementById('game').classList.add('md-show');
           document.body.appendChild(gp.container);
+          document.getElementById('game').classList.remove('gameHidden');
           f = true;
         }
       }
