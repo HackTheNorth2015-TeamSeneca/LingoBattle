@@ -81,6 +81,34 @@
     }
   }
 
+  function fetch() {
+    console.log("fetch");
+    var httpRequest = new XMLHttpRequest();
+    //var k = document.getElementById("key").value;
+    var k = document.getElementById('search').value;
+    var f = false;
+    httpRequest.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        console.log("returned");
+        console.log( httpRequest.responseText );
+        if(!f && httpRequest.responseText) {
+          el1 = document.getElementById('modal-5');
+          el1.classList.add("loading");
+          el1.classList.remove("md-show");
+          var settings = {
+            playerName: sessionStorage.username,
+            wordsPairs: JSON.parse(httpRequest.responseText).pairs
+          };
+          var gp = new GamePlay(settings);
+          document.body.appendChild(gp.container);
+          f = true;
+        }
+      }
+    };
+    httpRequest.open('GET', "http://45.55.43.203:3000/results?key=" + k + "&from=eng&to=" + sessionStorage.Language, true);
+    httpRequest.send(null);
+  }
+
   </script>
 </head>
 <body>
