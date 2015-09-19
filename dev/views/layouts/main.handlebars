@@ -103,13 +103,13 @@
           };
           var gp = new GamePlay(settings);
           document.getElementById('game').classList.add('md-show');
-          document.body.appendChild(gp.container);
+          document.getElementById('game').insertBefore(gp.container,document.getElementById('game').firstChild);
           document.getElementById('game').classList.remove('gameHidden');
           f = true;
         }
       }
     };
-    httpRequest.open('GET', "http://104.236.112.109:3000/results?key=" + k + "&from=eng&to=" + sessionStorage.Language, true);
+    httpRequest.open('GET', "http://45.55.43.203:3000/results?key=" + k + "&from=eng&to=" + sessionStorage.LanguageFrom, true);
     httpRequest.send(null);
   }
 

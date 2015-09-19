@@ -171,6 +171,26 @@ body {
   width: 100%;
   height: 100%;
 }
+
+#game p {
+  display: relative;
+}
+
 .gameHidden {
   visibility: hidden;
+}
+
+.hpBar {
+	display: inline;
+	position: absolute;
+	left: 30px;
+	top: 10px;
+	height: 30px;
+	width: 90px;
+	z-index:2000;
+}
+
+.innerHP {
+	width: 100%;
+	background-color: green;
 }
