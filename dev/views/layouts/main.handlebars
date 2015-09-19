@@ -34,9 +34,11 @@
     el.classList.add('md-show');
   }
   function toSearch() {
-    temp = document.getElementById('languageFrom').value;
+    from = document.getElementById('languageFrom').value;
+    to = document.getElementById('languageTo').value;
     if(typeof(Storage) !== "undefined") {
-      sessionStorage.Language = temp;
+      sessionStorage.LanguageFrom = temp;
+      sessionStorage.LanguageTo = to;
     }
     el = document.getElementById('modal-3');
     el.classList.remove("md-show");
@@ -105,7 +107,7 @@
         }
       }
     };
-    httpRequest.open('GET', "http://45.55.43.203:3000/results?key=" + k + "&from=eng&to=" + sessionStorage.Language, true);
+    httpRequest.open('GET', "http://45.55.43.203:3000/results?key=" + k + "&from=eng&to=" + sessionStorage.LanguageFrom, true);
     httpRequest.send(null);
   }
 
