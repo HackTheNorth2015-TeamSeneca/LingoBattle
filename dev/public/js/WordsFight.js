@@ -116,7 +116,9 @@ var Player = function (name, hp) {
 	this.object.add(objectH);
 
 	// player attack field
-	var radius = size + 150;
+	this.radiusIdx = 2;
+	this.radiuses = [100, 150, 200];
+	var radius = this.size + this.radiuses[this.radiusIdx];
 	var geometry = new THREE.CylinderGeometry(radius, radius, 1, 32);
 	var material = new THREE.MeshBasicMaterial({ 
 		color: 0xff0000,
@@ -127,6 +129,7 @@ var Player = function (name, hp) {
 	this.attackField.radius = radius;
 	this.object.add(this.attackField);
 
+	var that = this;
 	// player contols
 	this.movementControls = {
 		movementParams: {
@@ -143,13 +146,24 @@ var Player = function (name, hp) {
 					mp.moveForward = true;
 					break;
 				case 37: // left
-					mp.moveLeft = true; break;
+					mp.moveLeft = true; 
+					break;
 				case 40: // down
 					mp.moveBackward = true;
 					break;
 				case 39: // right
 					mp.moveRight = true;
 					break;
+				case 187: { // +
+					var newRadiusIdx = Math.min(2, that.radiusIdx + 1);
+					that.updateAttackRadius(newRadiusIdx);
+					break;
+				}
+				case 189: { // -
+					var newRadiusIdx = Math.max(0, that.radiusIdx - 1);
+					that.updateAttackRadius(newRadiusIdx);
+					break;
+				}
 			}
 		},
 		onKeyUp: function (event) {
@@ -185,6 +199,16 @@ var Player = function (name, hp) {
 	};
 	Helper.positionImageText(textOptions, positionOptions);
 };
+Player.prototype.updateAttackRadius = function (newRadiusIdx) {
+	if (newRadiusIdx == this.radiusIdx) {
+		return; 
+	}
+	this.radiusIdx = newRadiusIdx;				
+	var radius = this.size + this.radiuses[this.radiusIdx];
+	var geometry = new THREE.CylinderGeometry(radius, radius, 1, 32);
+	this.attackField.geometry = geometry;
+	this.attackField.radius = radius;
+};
 Player.prototype.kill = function () {
 	if (this.hp > 0)
 		--this.hp;
@@ -193,7 +217,7 @@ Player.prototype.isDead = function () {
 	return this.hp < 1;
 };
 
-var Bot = function (pair, id) {
+var Bot = function (level, pair, id) {
 	this.idx = 0;
 	this.word = pair.first;
 	this.translation = pair.second;
@@ -201,16 +225,16 @@ var Bot = function (pair, id) {
 	this.id = id;
 
 	this.rate = this.word.length;
+	this.level = level;
 
 	var size = Math.min(30, 4 * this.rate);
 	var geometry = new THREE.BoxGeometry(size, size, size);
 	var material = new THREE.MeshLambertMaterial({
 		color: 0x808080
 	});
-	this.size = size;
 	this.object = new THREE.Mesh(geometry, material);
 	this.object.position.y = 10;
-
+	this.size = size;
 
 	var textOptions = {
 		text: this.translation,
@@ -221,6 +245,9 @@ var Bot = function (pair, id) {
 		position: new THREE.Vector3(0, 30, 0)
 	};
 	Helper.positionImageText(textOptions, positionOptions);
+};
+Bot.prototype.getSpeed = function () {
+	return 100.0 * (this.level + 1) / Math.max(1, this.rate);
 };
 Bot.prototype.canBeInjured = function (ch) {
 	if (this.idx < this.word.length) {
@@ -289,10 +316,13 @@ var Rocket = function (target, ch) {
 	var materialRed = new THREE.MeshLambertMaterial({ 
 		color: 0x903535
 	});
-	this.size = size;
+	this.size = size;	
 
 	var object = new THREE.Mesh(geometry, materialRed);
 	this.object = object;
+};
+Rocket.prototype.getSpeed = function () {
+	return 350.0;
 };
 
 // mark -
@@ -404,15 +434,10 @@ GamePlay.prototype.onKeyDown = function (event) {
 	var code = event.keyCode;
 	if (Helper.keyToCharMap.contains(code)) {
 		var ch = Helper.keyToCharMap.get(code);
-		// console.log("Char to fire: ");
-		// console.log(ch);
-
 		if (!this.botsInAttackField.isEmpty()) {
 			var allBots = this.botsInAttackField.getAllValues();
 			for(var i = 0; i < allBots.length; ++i) {
 				var bot = allBots[i];
-
-				// TODO:
 				if (bot.canBeInjured(ch)) {
 					bot.injure(ch);
 
@@ -458,10 +483,8 @@ GamePlay.prototype.initGraphics = function () {
 	);
 	this.cameraTopDown.position.set(1000, 1000, 1000);
 	this.scene.add(this.cameraTopDown);
-
 	this.cameraTopDown.lookAt(new THREE.Vector3());
 	this.cameraTopDown.updateProjectionMatrix();
-	
 
 	// light
 	var light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
@@ -553,6 +576,7 @@ GamePlay.prototype.initBots = function () {
 	if (wordsPairs.length < 1)
 		return;
 
+	var dLevel = this.settings.difficultyLevel;
 	var rMax = this.buttleFieldRadiusUsed;
 	var rMin = this.player.attackField.radius;
 	var delta = 2 * Math.PI / wordsPairs.length;
@@ -562,7 +586,7 @@ GamePlay.prototype.initBots = function () {
 		var pair = wordsPairs[i];
 		var id = i;
 
-		var bot = new Bot(pair, id);
+		var bot = new Bot(dLevel, pair, id);
 		this.bots.push(bot);
 
 		var r = rMin + Math.random() * (rMax - rMin);
@@ -664,9 +688,9 @@ GamePlay.prototype.animateRockets = function (delta) {
 			toBotFromRocket.normalize();
 
 			var target = toBotFromRocket;
-			rObject.translateX(target.x * 350.0 * delta);
-			rObject.translateY(target.y * 350.0 * delta);
-			rObject.translateZ(target.z * 350.0 * delta);
+			rObject.translateX(target.x * rocket.getSpeed() * delta);
+			rObject.translateY(target.y * rocket.getSpeed() * delta);
+			rObject.translateZ(target.z * rocket.getSpeed() * delta);
 			rockets.push(rocket);
 		} else {
 			bot.kill();
@@ -733,9 +757,9 @@ GamePlay.prototype.animateBots = function (delta) {
 		    	this.botsInAttackField.insert(bot.id, bot);
 		    }
 
-		    bObject.translateX(target.x * 10.0 * delta);
-			bObject.translateY(target.y * 10.0 * delta);
-			bObject.translateZ(target.z * 10.0 * delta);
+		    bObject.translateX(target.x * bot.getSpeed() * delta);
+			bObject.translateY(target.y * bot.getSpeed() * delta);
+			bObject.translateZ(target.z * bot.getSpeed() * delta);
 			bots.push(bot);
 		} else {
 			this.player.kill();
