@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+  <title>Main</title>
+  <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="/lib/three.min.js"></script>
+  <script src="/js/WordsFight.js"></script>
+  <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.4/material.indigo-pink.min.css">
+  <script src="https://storage.googleapis.com/code.getmdl.io/1.0.4/material.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/css/loader.css">
+  <script>
+
+
+  function initialStart() {
+    el = document.getElementById('modal-2');
+    el.classList.add('md-show');
+    toggle_visibility();
+  }
+  function toLanguage() {
+    el = document.getElementById('modal-2');
+    userName = document.getElementById('userName').value;
+    if(typeof(Storage) !== "undefined") {
+      if(userName != undefined) {
+        sessionStorage.username = userName;
+      } else {
+        sessionStorage.username = "Default";
+      }
+    }
+    el.classList.remove("md-show");
+    el = document.getElementById('modal-3');
+    el.classList.add('md-show');
+  }
+  function toSearch() {
+    temp = document.getElementById('languageFrom').value;
+    if(typeof(Storage) !== "undefined") {
+      sessionStorage.Language = temp;
+    }
+    el = document.getElementById('modal-3');
+    el.classList.remove("md-show");
+    el = document.getElementById('modal-4');
+    el.classList.add('md-show');
+  }
+  function toLoading() {
+    check = document.getElementById('search').value;
+    check.trim();
+    if(check){
+      el = document.getElementById('modal-4');
+      el.classList.remove("md-show");
+      el1 = document.getElementById('modal-5');
+      el1.classList.remove("loading");
+      el1.classList.add("md-show");
+      fetch();
+    }
+  }
+
+  function closeUsername() {
+    el1 = document.getElementById('modal-2');
+    el1.classList.remove("md-show");
+    toggle_visibility();
+  }
+  function closeLanguage() {
+    el1 = document.getElementById('modal-3');
+    el1.classList.remove("md-show");
+    toggle_visibility();
+  }
+  function closeSearch() {
+    el1 = document.getElementById('modal-4');
+    el1.classList.remove("md-show");
+    toggle_visibility();
+  }
+
+  function toggle_visibility() {
+    var el = document.getElementById('header');
+    if(el.style.display == 'none'){
+      el.style.display = 'block';
+    }else {
+      el.style.display = 'none';
+    }
+  }
+
+  </script>
+</head>
+<body>
+  {{{body}}}
+</body>
+</html>

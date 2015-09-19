@@ -1,0 +1,24 @@
+<h1>Results</h1>
+
+<!--<div style="float:left">
+  <h2>Words:</h2>
+  {{#each words}}
+    <p>{{this}}</p>
+  {{/each}}
+</div>
+<div style="float:left">
+  <h2>Translated:</h2>
+  {{#each translated}}
+    <p>{{this}}</p>
+  {{/each}}
+</div>-->
+
+{{#each pairs}}
+  {{this.first}} - {{this.second}}
+{{/each}}
+
+<!--<script>
+  console.log(JSON.parse("{{pairs}}"));
+</script>-->
+
+{{foo}}

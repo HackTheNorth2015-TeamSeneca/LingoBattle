@@ -1,0 +1,99 @@
+<div id="header">
+  <h1>Learning English is fun</h1>
+  <button onclick="initialStart()" id="play" data-modal="modal-2" class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
+  Play Now
+  </button>
+</div>
+
+<!-- START OF MODALS! -->
+<div class="md-modal md-effect-2" id="modal-2">
+  <div class="md-content">
+    <h3>Username</h3>
+    <div>
+      <input type="text" name="userName" id="userName" placeholder="Default">
+      <button class="mdl-button mdl-js-button mdl-button--primary" onclick="closeUsername()" id="close">
+      Close
+      </button>
+      <button onclick="toLanguage()" id="username-next" data-modal="modal-2" class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">Next
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('userName').onkeyup = function (e) {
+  var code = e.keyCode ? e.keyCode : e.which;
+  if (code === 13) {
+    toLanguage();
+  }
+};
+</script>
+
+<div class="md-modal md-effect-2" id="modal-3">
+  <div class="md-content">
+    <h3>Language</h3>
+    <div>
+      <p>Language From:</p>
+      <select class="dropdown" id="languageFrom">
+        <option value="eng">English</option>
+        <option selected value="fra">French</option>
+        <option value="chi">Chinese</option>
+        <option value="spa">Spanish</option>
+        <option value="ukr">Ukrainian</option>
+        <option value="hin">Hindi</option>
+        <option value="rus">Russian</option>
+      </select>
+      <p>Language To:</p>
+      <select class="dropdown" id="languageTo">
+        <option selected value="eng">English</option>
+        <option value="fra">French</option>
+        <option value="chi">Chinese</option>
+        <option value="spa">Spanish</option>
+        <option value="ukr">Ukrainian</option>
+        <option value="hin">Hindi</option>
+        <option value="rus">Russian</option>
+      </select>
+      <button class="mdl-button mdl-js-button mdl-button--primary" onclick="closeLanguage()" id="close">
+      Close
+      </button>
+      <button onclick="toSearch()" id="username-next" data-modal="modal-2" class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">Next
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="md-modal md-effect-2" id="modal-4">
+  <div class="md-content">
+    <h3>Search</h3>
+    <div>
+      <input type="text" name="search" id="search">
+      <button class="mdl-button mdl-js-button mdl-button--primary" onclick="closeSearch()" id="close">
+      Close
+      </button>
+      <button onclick="toLoading()" id="username-next" data-modal="modal-2" class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">Next
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('search').onkeyup = function (e) {
+  var code = e.keyCode ? e.keyCode : e.which;
+  if (code === 13) { //up key
+    toLoading();
+  }
+};
+</script>
+
+<div class="md-modal md-effect-2" id="modal-5">
+  <div class="md-content">
+    <h3>Loading..</h3>
+    <div>
+      <div class="loader">Loading...</div>
+    </div>
+  </div>
+</div>
+
+
+<div class="md-overlay"></div>
+<!-- END OF MODALS -->
