@@ -113,16 +113,12 @@ document.getElementById('search').onkeyup = function (e) {
   </div>
 </div>
 
-<div class="game" id="game">
-
-</div>
-
 <div class="md-modal md-effect-2" id="modal-7">
   <div class="md-content">
     <h3>You Lost..</h3>
     <p id="scoreLost">Score:</p>
     <div>
-      <button class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect" onclick="playAgainLost()" id="closeDiff">
+      <button class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect" onclick="playAgainLost()" id="playAgain">
       Play Again
       </button>
     </div>
@@ -135,7 +131,7 @@ document.getElementById('search').onkeyup = function (e) {
     <p class="scoreWin">You are the winner!</p>
     <p class="scoreWin" id="scoreWin"></p>
     <div>
-      <button class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect" onclick="playAgainWin()" id="closeDiff">
+      <button class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect" onclick="playAgainWin()" id="playAgain">
       Play Again
       </button>
     </div>
@@ -145,6 +141,15 @@ document.getElementById('search').onkeyup = function (e) {
 
 <div class="md-overlay"></div>
 <!-- END OF MODALS -->
+
+<div class="game hiddenBar" id="game">
+  <h6 id="score"></h6>
+  <div class="wrapper">
+    <div id="hp"></div>
+  </div>
+  <br/>
+  <p>Use '+' and '-' to change the radius around you!</p>
+</div>
 
 <script>
 function hasClass(el, name) {

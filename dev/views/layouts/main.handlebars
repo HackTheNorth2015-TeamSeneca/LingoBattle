@@ -115,6 +115,12 @@
     gp.container.remove();
     gp.destroy();
     gp = null;
+    var elem = document.getElementById('hp');
+    elem.style.width = "100%";
+    document.getElementById('hp').innerHTML = "";
+    document.getElementById('score').innerHTML = "";
+    var el2 = document.getElementById('game');
+    el2.classList.add("hiddenBar");
     toDifficulty();
   }
   function playAgainWin() {
@@ -123,9 +129,30 @@
     gp.container.remove();
     gp.destroy();
     gp = null;
+    var elem = document.getElementById('hp');
+    elem.style.width = "100%";
+    document.getElementById('hp').innerHTML = "";
+    document.getElementById('score').innerHTML = "";
+    var el2 = document.getElementById('game');
+    el2.classList.add("hiddenBar");
     toDifficulty();
   }
   var gp;
+  function changeProgress(progress){
+    var elem = document.getElementById('hp');
+    var temp = Math.round(progress.hp / progress.hpTotal * 100) + "%";
+    elem.style.width = temp;
+    elem.innerHTML = temp;
+
+    document.getElementById('score').innerHTML = "Score: " + progress.score;
+  }
+  function startGame(progress) {
+    var elem = document.getElementById('hp');
+    var temp = Math.round(progress.hp / progress.hpTotal * 100) + "%";
+    elem.style.width = temp;
+    document.getElementById('hp').innerHTML = temp;
+    document.getElementById('score').innerHTML = "Score: " + progress.score;
+  }
   function fetch() {
     console.log("fetch");
     var httpRequest = new XMLHttpRequest();
@@ -140,7 +167,11 @@
           el1 = document.getElementById('modal-6');
           el1.classList.add("loading");
           el1.classList.remove("md-show");
+          var el2 = document.getElementById('game');
+          el2.classList.remove("hiddenBar");
           var settings = {
+            onLevelStart: startGame,
+            onProgressChange: changeProgress,
             onLevelComplete: levelComplete,
             onGameOver: gameOver,
             difficultyLevel: sessionStorage.difficulty,

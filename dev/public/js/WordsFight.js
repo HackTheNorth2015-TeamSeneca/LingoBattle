@@ -520,6 +520,7 @@ GamePlay.prototype.initGraphics = function () {
 
 	var container = document.createElement("div");	
 	this.container = container;
+    container.setAttribute("id", "engine");
 	container.style.left = 0 + "px";
 	container.style.top = 0 + "px";
 	container.style.width = "100%";
