@@ -98,6 +98,7 @@ var Player = function (level, name) {
 	this.score = 0;
 	this.level = level;
 	this.hp = 7 * (this.level + 1);
+	this.hpTotal = this.hp;
 
 	// player object
 	var size = 50;
@@ -373,7 +374,7 @@ var GamePlay = function (settings) {
 	this.init(this);
 	this.animate(this);
 
-//	document.addEventListener('keydown', this.onKeyDown.bind(this), false);
+	document.addEventListener('keydown', this.onKeyDown.bind(this), false);
 };
 
 GamePlay.prototype.validateSettings = function (settings) {
@@ -415,20 +416,26 @@ GamePlay.prototype.validateSettings = function (settings) {
 	// callbacks
 	if (!settings.hasOwnProperty("onGameOver")) {
 		settings.onGameOver = function (progress) {
-			console.log("Game Over! (default)");
-			console.log(progress);
+			// console.log("Game Over! (default)");
+			// console.log(progress);
+		};
+	}
+	if (!settings.hasOwnProperty("onLevelComplete")) {
+		settings.onLevelStart = function (progress) {
+			// console.log("Started! (default)");
+			// console.log(progress);
 		};
 	}
 	if (!settings.hasOwnProperty("onLevelComplete")) {
 		settings.onLevelComplete = function (progress) {
-			console.log("Congrats! (default)");
-			console.log(progress);
+			// console.log("Congrats! (default)");
+			// console.log(progress);
 		};
 	}
 	if (!settings.hasOwnProperty("onProgressChange")) {
 		settings.onProgressChange = function (progress) {
-			console.log("Progress change! (default)");
-			console.log(progress);
+			// console.log("Progress change! (default)");
+			// console.log(progress);
 		};
 	}
 	return true;
@@ -485,7 +492,7 @@ GamePlay.prototype.initGraphics = function () {
 		-0.5 * this.buttleFieldHeightTopDown * coef,
 		-0.00001, 1000000
 	);
-	this.cameraTopDown.position.set(1000, 1000, 1000);
+	this.cameraTopDown.position.set(0, 800, 1000);
 	this.scene.add(this.cameraTopDown);
 	this.cameraTopDown.lookAt(new THREE.Vector3());
 	this.cameraTopDown.updateProjectionMatrix();
@@ -617,6 +624,11 @@ GamePlay.prototype.animate = function () {
 	if (!this.isGamePlayVisible && this.requestedAnimationFrameId) {
 		this.isGamePlayVisible = true;
 		this.transitionIn();
+		this.settings.onLevelStart({
+			hpTotal: this.player.hpTotal,
+			hp: this.player.hp,
+			score: this.player.score
+		});
 	} 
 	request();
 };
@@ -628,11 +640,13 @@ GamePlay.prototype.render = function () {
 		}
 
 		this.settings.onGameOver({
+			hpTotal: this.player.hpTotal,
 			hp: this.player.hp,
 			score: this.player.score
 		});
 	} else if (this.bots.length < 1) {
 		this.settings.onLevelComplete({
+			hpTotal: this.player.hpTotal,
 			hp: this.player.hp,
 			score: this.player.score
 		});
@@ -670,6 +684,7 @@ GamePlay.prototype.animatePlayerAndCamera = function (delta) {
 	pPosition.z += mp.velocity.z * delta;
 	if (this.buttleFieldRadiusUsed > pPosition.length()) {
 		pObject.position.set(pPosition.x, pPosition.y, pPosition.z);
+		this.alignObjectDirection(pObject, mp.velocity);
 
 		// camera animation
 		var pPosition = this.cameraTopDown.position.clone();
@@ -715,6 +730,7 @@ GamePlay.prototype.animateRockets = function (delta) {
 
 				this.player.score += bot.word.length;
 				this.settings.onProgressChange({
+					hpTotal: this.player.hpTotal,
 					hp: this.player.hp,
 					score: this.player.score
 				});
@@ -774,6 +790,7 @@ GamePlay.prototype.animateBots = function (delta) {
 			bPosition.z += target.z * bot.getSpeed() * delta;
 			if (this.buttleFieldRadiusUsed > bPosition.length()) {
 				bObject.position.set(bPosition.x, bPosition.y, bPosition.z);
+				this.alignObjectDirection(bObject, target);
 			}
 
 			bots.push(bot);
@@ -789,6 +806,7 @@ GamePlay.prototype.animateBots = function (delta) {
 	    	this.scene.remove(bObject);
 
 	    	this.settings.onProgressChange({
+	    		hpTotal: this.player.hpTotal,
 				hp: this.player.hp,
 				score: this.player.score
 			});
@@ -799,6 +817,16 @@ GamePlay.prototype.animateBots = function (delta) {
 
 // appearance
 
+GamePlay.prototype.alignObjectDirection = function (object, vector) {
+	var a = new THREE.Vector3(0, 0, -1);
+	var b = vector.clone().normalize();
+	var angle =  Math.acos(a.dot(b));
+	var cross = new THREE.Vector3();
+	cross.crossVectors(a, b);
+
+	var quaternion = new THREE.Quaternion().setFromAxisAngle(cross.normalize(), angle);
+    object.rotation.setFromQuaternion(quaternion);
+};
 GamePlay.prototype.transitionIn = function (callback) {
 	function onComplete() {
 		if (callback !== undefined) {
