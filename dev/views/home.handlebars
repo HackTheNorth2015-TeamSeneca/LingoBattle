@@ -10,7 +10,7 @@
   <div class="md-content">
     <h3>Username</h3>
     <div>
-      <input type="text" name="userName" id="userName" placeholder="Default">
+      <input type="text" name="userName" id="userName" placeholder="Enter your username..">
       <button class="mdl-button mdl-js-button mdl-button--primary" onclick="closeUsername()" id="close">
       Close
       </button>
@@ -21,6 +21,7 @@
 </div>
 
 <script>
+
 document.getElementById('userName').onkeyup = function (e) {
   var code = e.keyCode ? e.keyCode : e.which;
   if (code === 13) {
@@ -33,7 +34,7 @@ document.getElementById('userName').onkeyup = function (e) {
   <div class="md-content">
     <h3>Language</h3>
     <div>
-      <p>Language From:</p>
+      <p>From:</p>
       <select class="dropdown" id="languageFrom">
         <option value="eng">English</option>
         <option selected value="fra">French</option>
@@ -43,7 +44,7 @@ document.getElementById('userName').onkeyup = function (e) {
         <option value="hin">Hindi</option>
         <option value="rus">Russian</option>
       </select>
-      <p>Language To:</p>
+      <p>To:</p>
       <select class="dropdown" id="languageTo">
         <option selected value="eng">English</option>
         <option value="fra">French</option>
@@ -56,7 +57,7 @@ document.getElementById('userName').onkeyup = function (e) {
       <button class="mdl-button mdl-js-button mdl-button--primary" onclick="closeLanguage()" id="close">
       Close
       </button>
-      <button onclick="toSearch()" id="username-next" data-modal="modal-2" class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">Next
+      <button onclick="toDifficulty()" id="username-next" data-modal="modal-2" class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">Next
       </button>
     </div>
   </div>
@@ -64,9 +65,27 @@ document.getElementById('userName').onkeyup = function (e) {
 
 <div class="md-modal md-effect-2" id="modal-4">
   <div class="md-content">
+    <h3>Difficulty</h3>
+    <div>
+      <button onclick="toSearch(0);" id="username-diff" data-modal="modal-2" class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">Easy
+      </button>
+      <button onclick="toSearch(1);" id="username-diff" data-modal="modal-2" class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">Normal
+      </button>
+      <button onclick="toSearch(2);" id="username-diff" data-modal="modal-2" class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">Hard
+      </button>
+      <button class="mdl-button mdl-js-button mdl-button--primary" onclick="closeDifficulty()" id="closeDiff">
+      Close
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<div class="md-modal md-effect-2" id="modal-5">
+  <div class="md-content">
     <h3>Search</h3>
     <div>
-      <input type="text" name="search" id="search">
+      <input type="text" name="search" id="search" placeholder="Keywords e.g. mechanics">
       <button class="mdl-button mdl-js-button mdl-button--primary" onclick="closeSearch()" id="close">
       Close
       </button>
@@ -85,7 +104,7 @@ document.getElementById('search').onkeyup = function (e) {
 };
 </script>
 
-<div class="md-modal md-effect-2" id="modal-5">
+<div class="md-modal md-effect-2" id="modal-6">
   <div class="md-content">
     <h3>Loading..</h3>
     <div>
@@ -94,6 +113,41 @@ document.getElementById('search').onkeyup = function (e) {
   </div>
 </div>
 
+<div class="game" id="game">
+
+</div>
 
 <div class="md-overlay"></div>
 <!-- END OF MODALS -->
+
+<script>
+function hasClass(el, name) {
+   return new RegExp('(\\s|^)'+name+'(\\s|$)').test(el.className);
+}
+document.onkeyup = function(e) {
+  var code = e.keyCode ? e.keyCode : e.which;
+  if (code === 27) {
+    el1 = document.getElementById('modal-2');
+    el2 = document.getElementById('modal-3');
+    el3 = document.getElementById('modal-4');
+    el4 = document.getElementById('modal-5');
+    el5 = document.getElementById('modal-6');
+    if(hasClass(el1, "md-show")) {
+      el1.classList.remove('md-show');
+      toggle_visibility();
+    } else if (hasClass(el2, "md-show")) {
+        el2.classList.remove('md-show');
+        toggle_visibility();
+    } else if (hasClass(el3, "md-show")) {
+        el3.classList.remove('md-show');
+        toggle_visibility();
+    } else if(hasClass(el4, "md-show")) {
+        el4.classList.remove('md-show');
+        toggle_visibility();
+    } else if(hasClass(el5, "md-show")) {
+        el4.classList.remove('md-show');
+        toggle_visibility();
+    }
+  }
+}
+</script>

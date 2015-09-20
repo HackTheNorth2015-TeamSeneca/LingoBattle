@@ -93,10 +93,12 @@ Helper.keyToCharMap = (function () {
 
 // mark - 
 
-var Player = function (name, hp) {
+var Player = function (level, name) {
 	this.name = name;
-	this.hp = hp;
 	this.score = 0;
+	this.level = level;
+	this.hp = 7 * (this.level + 1);
+	this.hpTotal = this.hp;
 
 	// player object
 	var size = 50;
@@ -116,10 +118,13 @@ var Player = function (name, hp) {
 	this.object.add(objectH);
 
 	// player attack field
-	var radius = size + 150;
+	this.radiusIdx = 2;
+	this.radiuses = [100, 150, 200];
+	var radius = this.size + this.radiuses[this.radiusIdx];
 	var geometry = new THREE.CylinderGeometry(radius, radius, 1, 32);
 	var material = new THREE.MeshBasicMaterial({ 
 		color: 0xff0000,
+		// color: 0xF70000,
 		transparent: true, 
 		opacity: 0.2
 	});
@@ -127,6 +132,7 @@ var Player = function (name, hp) {
 	this.attackField.radius = radius;
 	this.object.add(this.attackField);
 
+	var that = this;
 	// player contols
 	this.movementControls = {
 		movementParams: {
@@ -143,13 +149,24 @@ var Player = function (name, hp) {
 					mp.moveForward = true;
 					break;
 				case 37: // left
-					mp.moveLeft = true; break;
+					mp.moveLeft = true; 
+					break;
 				case 40: // down
 					mp.moveBackward = true;
 					break;
 				case 39: // right
 					mp.moveRight = true;
 					break;
+				case 187: { // +
+					var newRadiusIdx = Math.min(2, that.radiusIdx + 1);
+					that.updateAttackRadius(newRadiusIdx);
+					break;
+				}
+				case 189: { // -
+					var newRadiusIdx = Math.max(0, that.radiusIdx - 1);
+					that.updateAttackRadius(newRadiusIdx);
+					break;
+				}
 			}
 		},
 		onKeyUp: function (event) {
@@ -185,6 +202,16 @@ var Player = function (name, hp) {
 	};
 	Helper.positionImageText(textOptions, positionOptions);
 };
+Player.prototype.updateAttackRadius = function (newRadiusIdx) {
+	if (newRadiusIdx == this.radiusIdx) {
+		return; 
+	}
+	this.radiusIdx = newRadiusIdx;				
+	var radius = this.size + this.radiuses[this.radiusIdx];
+	var geometry = new THREE.CylinderGeometry(radius, radius, 1, 32);
+	this.attackField.geometry = geometry;
+	this.attackField.radius = radius;
+};
 Player.prototype.kill = function () {
 	if (this.hp > 0)
 		--this.hp;
@@ -192,8 +219,11 @@ Player.prototype.kill = function () {
 Player.prototype.isDead = function () {
 	return this.hp < 1;
 };
+Player.prototype.getSpeed = function () {
+	return 400.0 * (this.level + 1);
+};
 
-var Bot = function (pair, id) {
+var Bot = function (level, pair, id) {
 	this.idx = 0;
 	this.word = pair.first;
 	this.translation = pair.second;
@@ -201,16 +231,16 @@ var Bot = function (pair, id) {
 	this.id = id;
 
 	this.rate = this.word.length;
+	this.level = level;
 
 	var size = Math.min(30, 4 * this.rate);
 	var geometry = new THREE.BoxGeometry(size, size, size);
 	var material = new THREE.MeshLambertMaterial({
 		color: 0x808080
 	});
-	this.size = size;
 	this.object = new THREE.Mesh(geometry, material);
 	this.object.position.y = 10;
-
+	this.size = size;
 
 	var textOptions = {
 		text: this.translation,
@@ -221,6 +251,9 @@ var Bot = function (pair, id) {
 		position: new THREE.Vector3(0, 30, 0)
 	};
 	Helper.positionImageText(textOptions, positionOptions);
+};
+Bot.prototype.getSpeed = function () {
+	return 100.0 * (this.level + 1) / Math.max(1, this.rate);
 };
 Bot.prototype.canBeInjured = function (ch) {
 	if (this.idx < this.word.length) {
@@ -289,10 +322,13 @@ var Rocket = function (target, ch) {
 	var materialRed = new THREE.MeshLambertMaterial({ 
 		color: 0x903535
 	});
-	this.size = size;
+	this.size = size;	
 
 	var object = new THREE.Mesh(geometry, materialRed);
 	this.object = object;
+};
+Rocket.prototype.getSpeed = function () {
+	return 350.0;
 };
 
 // mark -
@@ -319,7 +355,7 @@ var GamePlay = function (settings) {
 	this.scene = null;
 	this.cameraTopDown = null;
 	this.renderer = null;
-	this.requestedAnimationFrameId = null;
+	this.requestedAnimationFrameId = 0;
 
 	this.container = null;
 	this.isGamePlayVisible = false;
@@ -381,20 +417,26 @@ GamePlay.prototype.validateSettings = function (settings) {
 	// callbacks
 	if (!settings.hasOwnProperty("onGameOver")) {
 		settings.onGameOver = function (progress) {
-			console.log("Game Over! (default)");
-			console.log(progress);
+			// console.log("Game Over! (default)");
+			// console.log(progress);
+		};
+	}
+	if (!settings.hasOwnProperty("onLevelComplete")) {
+		settings.onLevelStart = function (progress) {
+			// console.log("Started! (default)");
+			// console.log(progress);
 		};
 	}
 	if (!settings.hasOwnProperty("onLevelComplete")) {
 		settings.onLevelComplete = function (progress) {
-			console.log("Congrats! (default)");
-			console.log(progress);
+			// console.log("Congrats! (default)");
+			// console.log(progress);
 		};
 	}
 	if (!settings.hasOwnProperty("onProgressChange")) {
 		settings.onProgressChange = function (progress) {
-			console.log("Progress change! (default)");
-			console.log(progress);
+			// console.log("Progress change! (default)");
+			// console.log(progress);
 		};
 	}
 	return true;
@@ -404,15 +446,10 @@ GamePlay.prototype.onKeyDown = function (event) {
 	var code = event.keyCode;
 	if (Helper.keyToCharMap.contains(code)) {
 		var ch = Helper.keyToCharMap.get(code);
-		// console.log("Char to fire: ");
-		// console.log(ch);
-
 		if (!this.botsInAttackField.isEmpty()) {
 			var allBots = this.botsInAttackField.getAllValues();
 			for(var i = 0; i < allBots.length; ++i) {
 				var bot = allBots[i];
-
-				// TODO:
 				if (bot.canBeInjured(ch)) {
 					bot.injure(ch);
 
@@ -456,12 +493,10 @@ GamePlay.prototype.initGraphics = function () {
 		-0.5 * this.buttleFieldHeightTopDown * coef,
 		-0.00001, 1000000
 	);
-	this.cameraTopDown.position.set(1000, 1000, 1000);
+	this.cameraTopDown.position.set(0, 800, 1000);
 	this.scene.add(this.cameraTopDown);
-
 	this.cameraTopDown.lookAt(new THREE.Vector3());
 	this.cameraTopDown.updateProjectionMatrix();
-	
 
 	// light
 	var light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
@@ -531,8 +566,7 @@ GamePlay.prototype.initButtleField = function () {
 	this.scene.add(buttleFieldBackground);
 
 	// center
-	var materialBlue = new THREE.MeshBasicMaterial({ 
-		// color: 0x353E90,
+	var materialBlue = new THREE.MeshBasicMaterial({		
 		color: 0xeeeeee
 	});
 	var size = 40;				
@@ -542,9 +576,9 @@ GamePlay.prototype.initButtleField = function () {
 };
 GamePlay.prototype.initPlayer = function () {
 	// player
+	var level = this.settings.difficultyLevel;
 	var name = this.settings.playerName;
-	var hp = 7;
-	this.player = new Player(name, hp);
+	this.player = new Player(level, name);
 	var pObject = this.player.object;
 	this.scene.add(pObject);
 };
@@ -553,6 +587,7 @@ GamePlay.prototype.initBots = function () {
 	if (wordsPairs.length < 1)
 		return;
 
+	var level = this.settings.difficultyLevel;
 	var rMax = this.buttleFieldRadiusUsed;
 	var rMin = this.player.attackField.radius;
 	var delta = 2 * Math.PI / wordsPairs.length;
@@ -562,7 +597,7 @@ GamePlay.prototype.initBots = function () {
 		var pair = wordsPairs[i];
 		var id = i;
 
-		var bot = new Bot(pair, id);
+		var bot = new Bot(level, pair, id);
 		this.bots.push(bot);
 
 		var r = rMin + Math.random() * (rMax - rMin);
@@ -575,34 +610,42 @@ GamePlay.prototype.initBots = function () {
 		bObject.position.z = z;
 		this.scene.add(bObject);
 	}
-};		
+};
+
+// TODO:
+GamePlay.prototype.destroy = function () {
+};
 
 // animation
 
 GamePlay.prototype.animate = function () {
-	var that = this;
-	function request () {
-		that.requestedAnimationFrameId = requestAnimationFrame(that.animate.bind(that));
-	};
-
+	this.requestedAnimationFrameId = window.requestAnimationFrame(this.animate.bind(this));
 	this.render();
 	if (!this.isGamePlayVisible && this.requestedAnimationFrameId) {
 		this.isGamePlayVisible = true;
 		this.transitionIn();
+		this.settings.onLevelStart({
+			hpTotal: this.player.hpTotal,
+			hp: this.player.hp,
+			score: this.player.score
+		});
 	} 
-	request();
 };
 GamePlay.prototype.render = function () {
 	if (!this.player || this.player.isDead()) {
-		cancelAnimationFrame(this.requestedAnimationFrameId);
-		this.requestedAnimationFrameId = null;
+		if (this.requestedAnimationFrameId) {
+			window.cancelAnimationFrame(this.requestedAnimationFrameId);
+			this.requestedAnimationFrameId = 0;
+		}
 
 		this.settings.onGameOver({
+			hpTotal: this.player.hpTotal,
 			hp: this.player.hp,
 			score: this.player.score
 		});
 	} else if (this.bots.length < 1) {
 		this.settings.onLevelComplete({
+			hpTotal: this.player.hpTotal,
 			hp: this.player.hp,
 			score: this.player.score
 		});
@@ -626,26 +669,29 @@ GamePlay.prototype.animatePlayerAndCamera = function (delta) {
 	mp.velocity.z -= mp.velocity.z * 10.0 * delta;
 	mp.velocity.y = 0;
 	if (mp.moveForward) 
-		mp.velocity.z -= 400.0 * delta;
+		mp.velocity.z -= this.player.getSpeed() * delta;
 	if (mp.moveBackward) 
-		mp.velocity.z += 400.0 * delta;
+		mp.velocity.z += this.player.getSpeed() * delta;
 	if (mp.moveLeft) 
-		mp.velocity.x -= 400.0 * delta;
+		mp.velocity.x -= this.player.getSpeed() * delta;
 	if (mp.moveRight) 
-		mp.velocity.x += 400.0 * delta;
+		mp.velocity.x += this.player.getSpeed() * delta;
 
 	var pPosition = pObject.position.clone();
 	pPosition.x += mp.velocity.x * delta;
 	pPosition.y += mp.velocity.y * delta;
 	pPosition.z += mp.velocity.z * delta;
-	pObject.position.set(pPosition.x, pPosition.y, pPosition.z);
+	if (this.buttleFieldRadiusUsed > pPosition.length()) {
+		pObject.position.set(pPosition.x, pPosition.y, pPosition.z);
+		this.alignObjectDirection(pObject, mp.velocity);
 
-	// camera animation
-	var pPosition = this.cameraTopDown.position.clone();
-	pPosition.x += mp.velocity.x * delta;
-	pPosition.y += mp.velocity.y * delta;
-	pPosition.z += mp.velocity.z * delta;
-	this.cameraTopDown.position.set(pPosition.x, pPosition.y, pPosition.z);
+		// camera animation
+		var pPosition = this.cameraTopDown.position.clone();
+		pPosition.x += mp.velocity.x * delta;
+		pPosition.y += mp.velocity.y * delta;
+		pPosition.z += mp.velocity.z * delta;
+		this.cameraTopDown.position.set(pPosition.x, pPosition.y, pPosition.z);
+	}
 };
 GamePlay.prototype.animateRockets = function (delta) {
 	// TODO: destroy rockets properly
@@ -662,11 +708,14 @@ GamePlay.prototype.animateRockets = function (delta) {
 		var toBotFromRocket = new THREE.Vector3(x, y, z);
 		if (toBotFromRocket.length() > 5) {
 			toBotFromRocket.normalize();
-
+	
 			var target = toBotFromRocket;
-			rObject.translateX(target.x * 350.0 * delta);
-			rObject.translateY(target.y * 350.0 * delta);
-			rObject.translateZ(target.z * 350.0 * delta);
+			var rPosition = rObject.position.clone();
+			rPosition.x += target.x * rocket.getSpeed() * delta;
+			rPosition.y += target.y * rocket.getSpeed() * delta;
+			rPosition.z += target.z * rocket.getSpeed() * delta;
+			rObject.position.set(rPosition.x, rPosition.y, rPosition.z);
+
 			rockets.push(rocket);
 		} else {
 			bot.kill();
@@ -680,6 +729,7 @@ GamePlay.prototype.animateRockets = function (delta) {
 
 				this.player.score += bot.word.length;
 				this.settings.onProgressChange({
+					hpTotal: this.player.hpTotal,
 					hp: this.player.hp,
 					score: this.player.score
 				});
@@ -733,9 +783,15 @@ GamePlay.prototype.animateBots = function (delta) {
 		    	this.botsInAttackField.insert(bot.id, bot);
 		    }
 
-		    bObject.translateX(target.x * 10.0 * delta);
-			bObject.translateY(target.y * 10.0 * delta);
-			bObject.translateZ(target.z * 10.0 * delta);
+			var bPosition = bObject.position.clone();
+			bPosition.x += target.x * bot.getSpeed() * delta;
+			bPosition.y += target.y * bot.getSpeed() * delta;
+			bPosition.z += target.z * bot.getSpeed() * delta;
+			if (this.buttleFieldRadiusUsed > bPosition.length()) {
+				bObject.position.set(bPosition.x, bPosition.y, bPosition.z);
+				this.alignObjectDirection(bObject, target);
+			}
+
 			bots.push(bot);
 		} else {
 			this.player.kill();
@@ -749,6 +805,7 @@ GamePlay.prototype.animateBots = function (delta) {
 	    	this.scene.remove(bObject);
 
 	    	this.settings.onProgressChange({
+	    		hpTotal: this.player.hpTotal,
 				hp: this.player.hp,
 				score: this.player.score
 			});
@@ -759,6 +816,16 @@ GamePlay.prototype.animateBots = function (delta) {
 
 // appearance
 
+GamePlay.prototype.alignObjectDirection = function (object, vector) {
+	var a = new THREE.Vector3(0, 0, -1);
+	var b = vector.clone().normalize();
+	var angle =  Math.acos(a.dot(b));
+	var cross = new THREE.Vector3();
+	cross.crossVectors(a, b);
+
+	var quaternion = new THREE.Quaternion().setFromAxisAngle(cross.normalize(), angle);
+    object.rotation.setFromQuaternion(quaternion);
+};
 GamePlay.prototype.transitionIn = function (callback) {
 	function onComplete() {
 		if (callback !== undefined) {
