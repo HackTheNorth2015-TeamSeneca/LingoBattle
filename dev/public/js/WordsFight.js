@@ -420,7 +420,7 @@ GamePlay.prototype.validateSettings = function (settings) {
 			// console.log(progress);
 		};
 	}
-	if (!settings.hasOwnProperty("onLevelComplete")) {
+	if (!settings.hasOwnProperty("onLevelStart")) {
 		settings.onLevelStart = function (progress) {
 			// console.log("Started! (default)");
 			// console.log(progress);
