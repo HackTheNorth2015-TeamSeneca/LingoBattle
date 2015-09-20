@@ -1,5 +1,5 @@
 <div id="header">
-  <h1>Learning English is fun</h1>
+  <h1>Learning language is fun!</h1>
   <button onclick="initialStart()" id="play" data-modal="modal-2" class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
   Play Now
   </button>
@@ -117,6 +117,32 @@ document.getElementById('search').onkeyup = function (e) {
 
 </div>
 
+<div class="md-modal md-effect-2" id="modal-7">
+  <div class="md-content">
+    <h3>You Lost..</h3>
+    <p id="scoreLost">Score:</p>
+    <div>
+      <button class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect" onclick="playAgainLost()" id="closeDiff">
+      Play Again
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="md-modal md-effect-2" id="modal-8">
+  <div class="md-content">
+    <h3>Congratulations!</h3>
+    <p class="scoreWin">You are the winner!</p>
+    <p class="scoreWin" id="scoreWin"></p>
+    <div>
+      <button class="md-trigger mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect" onclick="playAgainWin()" id="closeDiff">
+      Play Again
+      </button>
+    </div>
+  </div>
+</div>
+
+
 <div class="md-overlay"></div>
 <!-- END OF MODALS -->
 
@@ -131,7 +157,6 @@ document.onkeyup = function(e) {
     el2 = document.getElementById('modal-3');
     el3 = document.getElementById('modal-4');
     el4 = document.getElementById('modal-5');
-    el5 = document.getElementById('modal-6');
     if(hasClass(el1, "md-show")) {
       el1.classList.remove('md-show');
       toggle_visibility();
