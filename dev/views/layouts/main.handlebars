@@ -33,7 +33,7 @@
     el = document.getElementById('modal-3');
     el.classList.add('md-show');
   }
-  function toSearch() {
+  function toDifficulty() {
     from = document.getElementById('languageFrom').value;
     to = document.getElementById('languageTo').value;
     if(typeof(Storage) !== "undefined") {
@@ -45,13 +45,23 @@
     el = document.getElementById('modal-4');
     el.classList.add('md-show');
   }
+  function toSearch(val) {
+    if(typeof(Storage) !== "undefined") {
+      sessionStorage.difficulty = val;
+    }
+    el = document.getElementById('modal-4');
+    el.classList.remove("md-show");
+    el = document.getElementById('modal-5');
+    el.classList.add('md-show');
+  }
+
   function toLoading() {
     check = document.getElementById('search').value;
     check.trim();
     if(check){
-      el = document.getElementById('modal-4');
+      el = document.getElementById('modal-5');
       el.classList.remove("md-show");
-      el1 = document.getElementById('modal-5');
+      el1 = document.getElementById('modal-6');
       el1.classList.remove("loading");
       el1.classList.add("md-show");
       fetch();
@@ -68,8 +78,15 @@
     el1.classList.remove("md-show");
     toggle_visibility();
   }
-  function closeSearch() {
+
+  function closeDifficulty() {
     el1 = document.getElementById('modal-4');
+    el1.classList.remove("md-show");
+    toggle_visibility();
+  }
+
+  function closeSearch() {
+    el1 = document.getElementById('modal-5');
     el1.classList.remove("md-show");
     toggle_visibility();
   }
@@ -94,17 +111,18 @@
         console.log("returned");
         console.log( httpRequest.responseText );
         if(!f && httpRequest.responseText) {
-          el1 = document.getElementById('modal-5');
+          el1 = document.getElementById('modal-6');
           el1.classList.add("loading");
           el1.classList.remove("md-show");
           var settings = {
+            difficultyLevel: sessionStorage.difficulty,
             playerName: sessionStorage.username,
             wordsPairs: JSON.parse(httpRequest.responseText).pairs
           };
           var gp = new GamePlay(settings);
-          document.getElementById('game').classList.add('md-show');
-          document.getElementById('game').insertBefore(gp.container,document.getElementById('game').firstChild);
-          document.getElementById('game').classList.remove('gameHidden');
+          //document.getElementById('game').classList.add('md-show');
+          document.body.appendChild(gp.container);
+          //document.getElementById('game').classList.remove('gameHidden');
           f = true;
         }
       }

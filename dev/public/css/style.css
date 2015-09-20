@@ -76,7 +76,6 @@ body {
   position: relative;
   border-radius: 3px;
   margin: 0 auto;
-  text-align:center;
 }
 
 .md-content h3 {
@@ -117,6 +116,15 @@ body {
   font-size: 18px;
   width: 65%;
   height: 20%;
+}
+
+#username-diff {
+  margin: auto;
+  left:15px;
+  font-size: 18px;
+  width: 90%;
+  height: 20%;
+  margin-top: 15px;
 }
 
 #languageFrom {
@@ -172,25 +180,16 @@ body {
   height: 100%;
 }
 
-#game p {
-  display: relative;
+#modal-3 div div {
+	text-align: center;
 }
 
-.gameHidden {
-  visibility: hidden;
-}
-
-.hpBar {
-	display: inline;
-	position: absolute;
-	left: 30px;
-	top: 10px;
-	height: 30px;
-	width: 90px;
-	z-index:2000;
-}
-
-.innerHP {
-	width: 100%;
-	background-color: green;
+#closeDiff {
+  margin:auto;
+  margin-top:10px;
+  font-size: 22px;
+  width: 20%;
+  height: 20%;
+  display: block;
+  font-size: 16px;
 }
