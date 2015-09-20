@@ -541,7 +541,7 @@ GamePlay.prototype.initGraphics = function () {
 	container.appendChild(canvas);
 	
 	// TODO:
-	// document.body.appendChild(this.container);
+	document.body.appendChild(this.container);
 };
 GamePlay.prototype.initButtleField = function () {
 	// buttlefield
@@ -644,6 +644,11 @@ GamePlay.prototype.render = function () {
 			score: this.player.score
 		});
 	} else if (this.bots.length < 1) {
+		if (this.requestedAnimationFrameId) {
+			window.cancelAnimationFrame(this.requestedAnimationFrameId);
+			this.requestedAnimationFrameId = 0;
+		}
+		
 		this.settings.onLevelComplete({
 			hpTotal: this.player.hpTotal,
 			hp: this.player.hp,
