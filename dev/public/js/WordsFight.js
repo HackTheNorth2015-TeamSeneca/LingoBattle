@@ -373,7 +373,7 @@ var GamePlay = function (settings) {
 	this.init(this);
 	this.animate(this);
 
-	document.addEventListener('keydown', this.onKeyDown.bind(this), false);
+//	document.addEventListener('keydown', this.onKeyDown.bind(this), false);
 };
 
 GamePlay.prototype.validateSettings = function (settings) {
