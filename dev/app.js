@@ -15,6 +15,32 @@ function filterWords(array) {
   return ret;
 }
 
+
+
+
+
+/*var terms = [];
+for(var r = 0; r < s.length; r++) {
+  var query = 'https://api.quizlet.com/2.0/sets/' + s[r].id + '/terms?client_id=fNtrBSQ5PK&whitespace=1';
+  needle.get(query, function(er, rr) {
+    var set = r.body;
+    for(var j = 0; j < set.length; j++) {
+
+      var ct = set[j].term;
+
+      if(/^[a-zA-Z][a-z]+$/.test(ct)) { // minimum 2 characters long, only the first character can be upper-case
+        ct = ct.toLowerCase();
+        terms.push(ct);
+      }
+    }
+  }
+}
+console.log(terms);*/
+
+
+
+
+
 function requestIteration(s, arr, i, resp, start, key, from, to) {
   var query = 'https://api.quizlet.com/2.0/sets/' + s[i].id + '/terms?client_id=fNtrBSQ5PK&whitespace=1';
   needle.get(query, function(e, r) {
@@ -29,8 +55,6 @@ function requestIteration(s, arr, i, resp, start, key, from, to) {
 
       // Translation:
 
-      //var from = "en";
-      //var to = "ru";
       var completedFrom = 0;
       var completedTo = 0;
 
@@ -79,10 +103,6 @@ function requestIteration(s, arr, i, resp, start, key, from, to) {
                 console.log(pairs);
               }
 
-              /*for(var p = 0; p < arr.length; p++) {
-                pairs[p] = { "first": resArr[p], "second": resTrArr[p] };
-              }
-              resp.send({ "pairs": pairs });*/
             }
         });
       }
@@ -103,7 +123,6 @@ function requestIteration(s, arr, i, resp, start, key, from, to) {
             //----------
 
             var resArr = [];
-            //var resTrArrTo = [];
             for(var p = 0; p < arr.length; p++) {
               if(!(arr[p] != arr[p].toLowerCase() && arr[p][0] == arr[p][0].toLowerCase()) && !(trArrTo[p] != trArrTo[p].toLowerCase() && trArrTo[p][0] == trArrTo[p][0].toLowerCase())) {
                 resArr.push(arr[p].toLowerCase());
@@ -122,11 +141,6 @@ function requestIteration(s, arr, i, resp, start, key, from, to) {
               resp.send({ "pairs": pairs });
             }
             console.log(pairs);
-
-            /*for(var p = 0; p < arr.length; p++) {
-              pairs[p] = { "first": resArr[p], "second": resTrArr[p] };
-            }
-            resp.send({ "pairs": pairs });*/
           }
         });
       }
@@ -146,16 +160,82 @@ app.get('/', function(req, res) {
   res.render('home', { "data": "abc" });
 });
 app.get('/results', function(req, res) {
-
-  //----------
-
+  var start = (new Date).getTime();
   fs.readFile('config.json', 'utf8', function(err, obj) {
     console.log(JSON.parse(obj));
     console.log(req.query.from);
     console.log(req.query.to);
     needle.get('https://api.quizlet.com/2.0/search/sets?client_id=' + JSON.parse(obj).quizlet_client_id + '&whitespace=1&q=' + req.query.key, function(err, resp) {
+      console.log("30 sets returned");
       var array = [];
-      requestIteration(resp.body.sets, array, 0, res, (new Date).getTime(), JSON.parse(obj).yandex_api_key, req.query.from, req.query.to);
+      //requestIteration(resp.body.sets, array, 0, res, (new Date).getTime(), JSON.parse(obj).yandex_api_key, req.query.from, req.query.to);
+
+      var terms = [];
+      var s = resp.body.sets;
+      var completed = 0;
+      for(var r = 0; r < s.length; r++) {
+        var query = 'https://api.quizlet.com/2.0/sets/' + s[r].id + '/terms?client_id=fNtrBSQ5PK&whitespace=1';
+        needle.get(query, function(er, rr) {
+          if(rr) {
+            var set = rr.body;
+            for(var j = 0; j < set.length; j++) {
+
+              var ct = set[j].term;
+
+              if(/^[a-zA-Z][a-z]+$/.test(ct)) { // minimum 2 characters long, only the first character can be upper-case
+                if(ct) {
+                  ct = ct.toLowerCase();
+                  terms.push(ct);
+                }
+              }
+            }
+          }
+          completed++;
+          if(completed == s.length) {
+            console.log(((new Date).getTime() - start) / 1000);
+
+            var completedFrom = 0;
+            var completedTo = 0;
+            var finished = false;
+            var pairs = [];
+
+            var trPairs = [];
+            var trTermsFrom = [];
+            var trTermsTo = [];
+            console.log(req.query.from);
+            var que1 = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + JSON.parse(obj).yandex_api_key + "&lang=" + req.query.from + "&text=" + terms[0];
+            for(var d = 1; d < 200; d++) {
+              que1 += ("%3F&text=" + terms[d]);
+            }
+            needle.get(que1, function(er1, rsp1) {
+              var trTermsFrom = rsp1.body.text;
+              console.log(req.query.to);
+              var que2 = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + JSON.parse(obj).yandex_api_key + "&lang=" + req.query.to + "&text=" + terms[0];
+              for(var d = 1; d < 200; d++) {
+                que2 += ("%3F&text=" + terms[d]);
+              }
+              needle.get(que2, function(er2, rsp2) {
+                console.log(((new Date).getTime() - start) / 1000);
+                var trTermsTo = rsp2.body.text;
+                for(var e = 0; e < 200; e++) {
+                    trTermsFrom[e] = trTermsFrom[e].toLowerCase();
+                    trTermsFrom[e] = trTermsFrom[e].replace("?", "");
+                    trTermsFrom[e] = trTermsFrom[e].replace("'", "");
+                    trTermsFrom[e] = trTermsFrom[e].replace(".", "");
+                    trTermsTo[e] = trTermsTo[e].toLowerCase();
+                    trTermsTo[e] = trTermsTo[e].replace("?", "");
+                    trTermsTo[e] = trTermsTo[e].replace("'", "");
+                    trTermsTo[e] = trTermsTo[e].replace(".", "");
+
+                    if(trPairs.length < 100)
+                    trPairs.push({ "first": trTermsFrom[e], "second": trTermsTo[e] });
+                }
+                res.send({ "pairs": trPairs });
+              });
+            });
+          }
+        });
+      }
     });
   });
 });
