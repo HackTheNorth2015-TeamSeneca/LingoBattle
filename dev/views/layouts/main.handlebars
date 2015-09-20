@@ -93,10 +93,13 @@
 
   function toggle_visibility() {
     var el = document.getElementById('header');
+    var el1 = document.getElementById('rules');
     if(el.style.display == 'none'){
       el.style.display = 'block';
+      el1.style.display = 'block';
     }else {
       el.style.display = 'none';
+      el1.style.display = 'none';
     }
   }
   function gameOver(progress) {
@@ -186,7 +189,7 @@
         }
       }
     };
-    httpRequest.open('GET', "http://lingobattle.co/results?key=" + k + "&from=eng&to=" + sessionStorage.LanguageFrom, true);
+    httpRequest.open('GET', "http://45.55.43.203:3000/results?key=" + k + "&from=eng&to=" + sessionStorage.LanguageFrom, true);
     httpRequest.send(null);
   }
 
