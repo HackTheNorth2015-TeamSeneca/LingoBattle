@@ -3,6 +3,22 @@
   text-align: center;
 }
 
+#rules {
+  /*background-color: rgb(63, 81, 181);*/
+  color: white;
+  width: 50%;
+  height: 50%;
+  position: absolute;
+  bottom: 10%;
+  left: 25%;
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+/*#rules ul {
+  margin: 0 auto;
+}*/
+
 body {
   background-image: url("/images/background.jpg");
 }
