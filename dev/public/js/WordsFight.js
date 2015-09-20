@@ -84,7 +84,7 @@ Helper.positionImageText = function(textOptions, positionOptions) {
 };
 Helper.keyToCharMap = (function () {
 	var map = new HashTable();
-	var keyCodesChars = ["a", 65,"b", 66,"c", 67,"d", 68,"e", 69,"f", 70,"g", 71,"h", 72,"i", 73,"j", 74,"k", 75,"l", 76,"m", 77,"n", 78,"o", 79,"p", 80,"q", 81,"r", 82,"s", 83,"t", 84,"u", 85,"v", 86,"w", 87,"x", 88,"y", 89,"z", 90];
+	var keyCodesChars = ["a", 65,"b", 66,"c", 67,"d", 68,"e", 69,"f", 70,"g", 71,"h", 72,"i", 73,"j", 74,"k", 75,"l", 76,"m", 77,"n", 78,"o", 79,"p", 80,"q", 81,"r", 82,"s", 83,"t", 84,"u", 85,"v", 86,"w", 87,"x", 88,"y", 89,"z", 90, " ", 32, "'", 222];
 	for (var i = 1; i < keyCodesChars.length; i += 2) {
 		map.insert(keyCodesChars[i], keyCodesChars[i - 1]);
 	}
@@ -648,7 +648,7 @@ GamePlay.prototype.render = function () {
 			window.cancelAnimationFrame(this.requestedAnimationFrameId);
 			this.requestedAnimationFrameId = 0;
 		}
-		
+
 		this.settings.onLevelComplete({
 			hpTotal: this.player.hpTotal,
 			hp: this.player.hp,
