@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-  <title>Main</title>
+  <title>LingoBattle</title>
   <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <script src="/lib/three.min.js"></script>
@@ -99,7 +99,33 @@
       el.style.display = 'none';
     }
   }
-
+  function gameOver(progress) {
+    el = document.getElementById('modal-7');
+    el.classList.add('md-show');
+    document.getElementById('scoreLost').innerHTML = "Your score: " + progress.score;
+  }
+  function levelComplete(progress) {
+    el = document.getElementById('modal-8');
+    el.classList.add('md-show');
+    document.getElementById('scoreWin').innerHTML = "Your score: " + progress.score;
+  }
+  function playAgainLost() {
+    el = document.getElementById('modal-7');
+    el.classList.remove('md-show');
+    gp.container.remove();
+    gp.destroy();
+    gp = null;
+    toDifficulty();
+  }
+  function playAgainWin() {
+    el = document.getElementById('modal-8');
+    el.classList.remove('md-show');
+    gp.container.remove();
+    gp.destroy();
+    gp = null;
+    toDifficulty();
+  }
+  var gp;
   function fetch() {
     console.log("fetch");
     var httpRequest = new XMLHttpRequest();
@@ -115,11 +141,13 @@
           el1.classList.add("loading");
           el1.classList.remove("md-show");
           var settings = {
+            onLevelComplete: levelComplete,
+            onGameOver: gameOver,
             difficultyLevel: sessionStorage.difficulty,
             playerName: sessionStorage.username,
             wordsPairs: JSON.parse(httpRequest.responseText).pairs
           };
-          var gp = new GamePlay(settings);
+          gp = new GamePlay(settings);
           //document.getElementById('game').classList.add('md-show');
           document.body.appendChild(gp.container);
           //document.getElementById('game').classList.remove('gameHidden');
