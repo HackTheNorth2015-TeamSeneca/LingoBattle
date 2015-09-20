@@ -93,10 +93,11 @@ Helper.keyToCharMap = (function () {
 
 // mark - 
 
-var Player = function (name, hp) {
+var Player = function (level, name) {
 	this.name = name;
-	this.hp = hp;
 	this.score = 0;
+	this.level = level;
+	this.hp = 7 * (this.level + 1);
 
 	// player object
 	var size = 50;
@@ -215,6 +216,9 @@ Player.prototype.kill = function () {
 };
 Player.prototype.isDead = function () {
 	return this.hp < 1;
+};
+Player.prototype.getSpeed = function () {
+	return 400.0 * (this.level + 1);
 };
 
 var Bot = function (level, pair, id) {
@@ -349,7 +353,7 @@ var GamePlay = function (settings) {
 	this.scene = null;
 	this.cameraTopDown = null;
 	this.renderer = null;
-	this.requestedAnimationFrameId = null;
+	this.requestedAnimationFrameId = 0;
 
 	this.container = null;
 	this.isGamePlayVisible = false;
@@ -529,7 +533,7 @@ GamePlay.prototype.initGraphics = function () {
 	container.appendChild(canvas);
 	
 	// TODO:
-	// document.body.appendChild(this.container);
+	document.body.appendChild(this.container);
 };
 GamePlay.prototype.initButtleField = function () {
 	// buttlefield
@@ -565,9 +569,9 @@ GamePlay.prototype.initButtleField = function () {
 };
 GamePlay.prototype.initPlayer = function () {
 	// player
+	var level = this.settings.difficultyLevel;
 	var name = this.settings.playerName;
-	var hp = 7;
-	this.player = new Player(name, hp);
+	this.player = new Player(level, name);
 	var pObject = this.player.object;
 	this.scene.add(pObject);
 };
@@ -576,7 +580,7 @@ GamePlay.prototype.initBots = function () {
 	if (wordsPairs.length < 1)
 		return;
 
-	var dLevel = this.settings.difficultyLevel;
+	var level = this.settings.difficultyLevel;
 	var rMax = this.buttleFieldRadiusUsed;
 	var rMin = this.player.attackField.radius;
 	var delta = 2 * Math.PI / wordsPairs.length;
@@ -586,7 +590,7 @@ GamePlay.prototype.initBots = function () {
 		var pair = wordsPairs[i];
 		var id = i;
 
-		var bot = new Bot(dLevel, pair, id);
+		var bot = new Bot(level, pair, id);
 		this.bots.push(bot);
 
 		var r = rMin + Math.random() * (rMax - rMin);
@@ -606,7 +610,7 @@ GamePlay.prototype.initBots = function () {
 GamePlay.prototype.animate = function () {
 	var that = this;
 	function request () {
-		that.requestedAnimationFrameId = requestAnimationFrame(that.animate.bind(that));
+		that.requestedAnimationFrameId = window.requestAnimationFrame(that.animate.bind(that));
 	};
 
 	this.render();
@@ -618,8 +622,10 @@ GamePlay.prototype.animate = function () {
 };
 GamePlay.prototype.render = function () {
 	if (!this.player || this.player.isDead()) {
-		cancelAnimationFrame(this.requestedAnimationFrameId);
-		this.requestedAnimationFrameId = null;
+		if (this.requestAnimationFrame) {
+			window.cancelAnimationFrame(this.requestedAnimationFrameId);
+			this.requestedAnimationFrameId = 0;
+		}
 
 		this.settings.onGameOver({
 			hp: this.player.hp,
@@ -650,26 +656,28 @@ GamePlay.prototype.animatePlayerAndCamera = function (delta) {
 	mp.velocity.z -= mp.velocity.z * 10.0 * delta;
 	mp.velocity.y = 0;
 	if (mp.moveForward) 
-		mp.velocity.z -= 400.0 * delta;
+		mp.velocity.z -= this.player.getSpeed() * delta;
 	if (mp.moveBackward) 
-		mp.velocity.z += 400.0 * delta;
+		mp.velocity.z += this.player.getSpeed() * delta;
 	if (mp.moveLeft) 
-		mp.velocity.x -= 400.0 * delta;
+		mp.velocity.x -= this.player.getSpeed() * delta;
 	if (mp.moveRight) 
-		mp.velocity.x += 400.0 * delta;
+		mp.velocity.x += this.player.getSpeed() * delta;
 
 	var pPosition = pObject.position.clone();
 	pPosition.x += mp.velocity.x * delta;
 	pPosition.y += mp.velocity.y * delta;
 	pPosition.z += mp.velocity.z * delta;
-	pObject.position.set(pPosition.x, pPosition.y, pPosition.z);
+	if (this.buttleFieldRadiusUsed > pPosition.length()) {
+		pObject.position.set(pPosition.x, pPosition.y, pPosition.z);
 
-	// camera animation
-	var pPosition = this.cameraTopDown.position.clone();
-	pPosition.x += mp.velocity.x * delta;
-	pPosition.y += mp.velocity.y * delta;
-	pPosition.z += mp.velocity.z * delta;
-	this.cameraTopDown.position.set(pPosition.x, pPosition.y, pPosition.z);
+		// camera animation
+		var pPosition = this.cameraTopDown.position.clone();
+		pPosition.x += mp.velocity.x * delta;
+		pPosition.y += mp.velocity.y * delta;
+		pPosition.z += mp.velocity.z * delta;
+		this.cameraTopDown.position.set(pPosition.x, pPosition.y, pPosition.z);
+	}
 };
 GamePlay.prototype.animateRockets = function (delta) {
 	// TODO: destroy rockets properly
@@ -686,11 +694,14 @@ GamePlay.prototype.animateRockets = function (delta) {
 		var toBotFromRocket = new THREE.Vector3(x, y, z);
 		if (toBotFromRocket.length() > 5) {
 			toBotFromRocket.normalize();
-
+	
 			var target = toBotFromRocket;
-			rObject.translateX(target.x * rocket.getSpeed() * delta);
-			rObject.translateY(target.y * rocket.getSpeed() * delta);
-			rObject.translateZ(target.z * rocket.getSpeed() * delta);
+			var rPosition = rObject.position.clone();
+			rPosition.x += target.x * rocket.getSpeed() * delta;
+			rPosition.y += target.y * rocket.getSpeed() * delta;
+			rPosition.z += target.z * rocket.getSpeed() * delta;
+			rObject.position.set(rPosition.x, rPosition.y, rPosition.z);
+
 			rockets.push(rocket);
 		} else {
 			bot.kill();
@@ -757,9 +768,14 @@ GamePlay.prototype.animateBots = function (delta) {
 		    	this.botsInAttackField.insert(bot.id, bot);
 		    }
 
-		    bObject.translateX(target.x * bot.getSpeed() * delta);
-			bObject.translateY(target.y * bot.getSpeed() * delta);
-			bObject.translateZ(target.z * bot.getSpeed() * delta);
+			var bPosition = bObject.position.clone();
+			bPosition.x += target.x * bot.getSpeed() * delta;
+			bPosition.y += target.y * bot.getSpeed() * delta;
+			bPosition.z += target.z * bot.getSpeed() * delta;
+			if (this.buttleFieldRadiusUsed > bPosition.length()) {
+				bObject.position.set(bPosition.x, bPosition.y, bPosition.z);
+			}
+
 			bots.push(bot);
 		} else {
 			this.player.kill();
