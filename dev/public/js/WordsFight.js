@@ -124,6 +124,7 @@ var Player = function (level, name) {
 	var geometry = new THREE.CylinderGeometry(radius, radius, 1, 32);
 	var material = new THREE.MeshBasicMaterial({ 
 		color: 0xff0000,
+		// color: 0xF70000,
 		transparent: true, 
 		opacity: 0.2
 	});
@@ -540,7 +541,7 @@ GamePlay.prototype.initGraphics = function () {
 	container.appendChild(canvas);
 	
 	// TODO:
-	document.body.appendChild(this.container);
+	// document.body.appendChild(this.container);
 };
 GamePlay.prototype.initButtleField = function () {
 	// buttlefield
@@ -565,8 +566,7 @@ GamePlay.prototype.initButtleField = function () {
 	this.scene.add(buttleFieldBackground);
 
 	// center
-	var materialBlue = new THREE.MeshBasicMaterial({ 
-		// color: 0x353E90,
+	var materialBlue = new THREE.MeshBasicMaterial({		
 		color: 0xeeeeee
 	});
 	var size = 40;				
@@ -610,16 +610,16 @@ GamePlay.prototype.initBots = function () {
 		bObject.position.z = z;
 		this.scene.add(bObject);
 	}
-};		
+};
+
+// TODO:
+GamePlay.prototype.destroy = function () {
+};
 
 // animation
 
 GamePlay.prototype.animate = function () {
-	var that = this;
-	function request () {
-		that.requestedAnimationFrameId = window.requestAnimationFrame(that.animate.bind(that));
-	};
-
+	this.requestedAnimationFrameId = window.requestAnimationFrame(this.animate.bind(this));
 	this.render();
 	if (!this.isGamePlayVisible && this.requestedAnimationFrameId) {
 		this.isGamePlayVisible = true;
@@ -630,11 +630,10 @@ GamePlay.prototype.animate = function () {
 			score: this.player.score
 		});
 	} 
-	request();
 };
 GamePlay.prototype.render = function () {
 	if (!this.player || this.player.isDead()) {
-		if (this.requestAnimationFrame) {
+		if (this.requestedAnimationFrameId) {
 			window.cancelAnimationFrame(this.requestedAnimationFrameId);
 			this.requestedAnimationFrameId = 0;
 		}
