@@ -21,6 +21,7 @@
 </div>
 
 <script>
+
 document.getElementById('userName').onkeyup = function (e) {
   var code = e.keyCode ? e.keyCode : e.which;
   if (code === 13) {
@@ -78,6 +79,7 @@ document.getElementById('userName').onkeyup = function (e) {
 
 <script>
 document.getElementById('search').onkeyup = function (e) {
+  console.log(e);
   var code = e.keyCode ? e.keyCode : e.which;
   if (code === 13) { //up key
     toLoading();
@@ -94,9 +96,37 @@ document.getElementById('search').onkeyup = function (e) {
   </div>
 </div>
 
+<div class="game" id="game">
+
+</div>
+
 <div class="md-overlay"></div>
 <!-- END OF MODALS -->
 
-<div class="game gameHidden" id="game">
-  <p>HP:</p><div class="hpBar" id="hpBar"><div class="innerHP"></div></div>
-</div>
+<script>
+function hasClass(el, name) {
+   return new RegExp('(\\s|^)'+name+'(\\s|$)').test(el.className);
+}
+document.onkeyup = function(e) {
+  var code = e.keyCode ? e.keyCode : e.which;
+  if (code === 27) {
+    el1 = document.getElementById('modal-2');
+    el2 = document.getElementById('modal-3');
+    el3 = document.getElementById('modal-4');
+    el4 = document.getElementById('modal-5');
+    if(hasClass(el1, "md-show")) {
+      el1.classList.remove('md-show');
+      toggle_visibility();
+    } else if (hasClass(el2, "md-show")) {
+        el2.classList.remove('md-show');
+        toggle_visibility();
+    } else if (hasClass(el3, "md-show")) {
+        el3.classList.remove('md-show');
+        toggle_visibility();
+    } else if(hasClass(el4, "md-show")) {
+        el4.classList.remove('md-show');
+        toggle_visibility();
+    }
+  }
+}
+</script>
