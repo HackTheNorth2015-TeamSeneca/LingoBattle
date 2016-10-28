@@ -192,7 +192,7 @@ app.get('/results', function(req, res) {
           }
           completed++;
           if(completed == s.length) {
-            console.log(((new Date).getTime() - start) / 1000);
+            //console.log(((new Date).getTime() - start) / 1000);
 
             var completedFrom = 0;
             var completedTo = 0;
@@ -202,20 +202,20 @@ app.get('/results', function(req, res) {
             var trPairs = [];
             var trTermsFrom = [];
             var trTermsTo = [];
-            console.log(req.query.from);
+            //console.log(req.query.from);
             var que1 = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + JSON.parse(obj).yandex_api_key + "&lang=" + req.query.from + "&text=" + terms[0];
             for(var d = 1; d < 200; d++) {
               que1 += ("%3F&text=" + terms[d]);
             }
             needle.get(que1, function(er1, rsp1) {
               var trTermsFrom = rsp1.body.text;
-              console.log(req.query.to);
+              //console.log(req.query.to);
               var que2 = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + JSON.parse(obj).yandex_api_key + "&lang=" + req.query.to + "&text=" + terms[0];
               for(var d = 1; d < 200; d++) {
                 que2 += ("%3F&text=" + terms[d]);
               }
               needle.get(que2, function(er2, rsp2) {
-                console.log(((new Date).getTime() - start) / 1000);
+                //console.log(((new Date).getTime() - start) / 1000);
                 var trTermsTo = rsp2.body.text;
                 for(var e = 0; e < 200; e++) {
                     trTermsFrom[e] = trTermsFrom[e].toLowerCase();
