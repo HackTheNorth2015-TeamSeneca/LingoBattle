@@ -51,7 +51,7 @@ function requestIteration(s, arr, i, resp, start, key, from, to) {
     if(i < s.length - 1) {
       requestIteration(s, arr, i + 1, resp, start, key, from, to);
     } else {
-      console.log(((new Date).getTime() - start) / 1000);
+      //console.log(((new Date).getTime() - start) / 1000);
 
       // Translation:
 
@@ -77,7 +77,7 @@ function requestIteration(s, arr, i, resp, start, key, from, to) {
 
           completedFrom++;
           if(completedFrom == arr.length) {
-              console.log(((new Date).getTime() - start) / 1000);
+              //console.log(((new Date).getTime() - start) / 1000);
               var pairs = [];
 
               //----------
@@ -100,7 +100,7 @@ function requestIteration(s, arr, i, resp, start, key, from, to) {
                   pairs[p] = { "first": resTrArrFrom[p], "second": resTrArrTo[p] };
                 }
                 resp.send({ "pairs": pairs });
-                console.log(pairs);
+                //console.log(pairs);
               }
 
             }
@@ -117,7 +117,7 @@ function requestIteration(s, arr, i, resp, start, key, from, to) {
 
           completedTo++;
           if(completedTo == arr.length) {
-            console.log(((new Date).getTime() - start) / 1000);
+            //console.log(((new Date).getTime() - start) / 1000);
             var pairs = [];
 
             //----------
@@ -140,7 +140,7 @@ function requestIteration(s, arr, i, resp, start, key, from, to) {
               }
               resp.send({ "pairs": pairs });
             }
-            console.log(pairs);
+            //console.log(pairs);
           }
         });
       }
@@ -162,11 +162,11 @@ app.get('/', function(req, res) {
 app.get('/results', function(req, res) {
   var start = (new Date).getTime();
   fs.readFile('config.json', 'utf8', function(err, obj) {
-    console.log(JSON.parse(obj));
-    console.log(req.query.from);
-    console.log(req.query.to);
+    //console.log(JSON.parse(obj));
+    //console.log(req.query.from);
+    //console.log(req.query.to);
     needle.get('https://api.quizlet.com/2.0/search/sets?client_id=' + JSON.parse(obj).quizlet_client_id + '&whitespace=1&q=' + req.query.key, function(err, resp) {
-      console.log("30 sets returned");
+      //console.log("30 sets returned");
       var array = [];
       //requestIteration(resp.body.sets, array, 0, res, (new Date).getTime(), JSON.parse(obj).yandex_api_key, req.query.from, req.query.to);
 
