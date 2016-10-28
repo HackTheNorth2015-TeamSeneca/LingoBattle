@@ -217,7 +217,8 @@ app.get('/results', function(req, res) {
               needle.get(que2, function(er2, rsp2) {
                 //console.log(((new Date).getTime() - start) / 1000);
                 var trTermsTo = rsp2.body.text;
-                for(var e = 0; e < 200; e++) {
+                var _length = trTermsFrom.length > trTermsTo.length ? trTermsTo.length : trTermsFrom.length;
+                for(var e = 0; e < _length; e++) {
                     trTermsFrom[e] = trTermsFrom[e].toLowerCase();
                     trTermsFrom[e] = trTermsFrom[e].replace("?", "");
                     trTermsFrom[e] = trTermsFrom[e].replace("'", "");
