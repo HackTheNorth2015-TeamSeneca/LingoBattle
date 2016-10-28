@@ -147,7 +147,9 @@
     elem.style.width = temp;
     elem.innerHTML = temp;
 
-    document.getElementById('score').innerHTML = "Score: " + progress.score;
+
+
+document.getElementById('score').innerHTML = "Score: " + progress.score;
   }
   function startGame(progress) {
     var elem = document.getElementById('hp');
@@ -157,15 +159,15 @@
     document.getElementById('score').innerHTML = "Score: " + progress.score;
   }
   function fetch() {
-    console.log("fetch");
+    //console.log("fetch");
     var httpRequest = new XMLHttpRequest();
     //var k = document.getElementById("key").value;
     var k = document.getElementById('search').value;
     var f = false;
     httpRequest.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
-        console.log("returned");
-        console.log( httpRequest.responseText );
+        //console.log("returned");
+        //console.log( httpRequest.responseText );
         if(!f && httpRequest.responseText) {
           el1 = document.getElementById('modal-6');
           el1.classList.add("loading");
