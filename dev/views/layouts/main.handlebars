@@ -191,7 +191,7 @@ document.getElementById('score').innerHTML = "Score: " + progress.score;
         }
       }
     };
-    httpRequest.open('GET', "http://45.55.43.203:3000/results?key=" + k + "&from=eng&to=" + sessionStorage.LanguageFrom, true);
+    httpRequest.open('GET', "http://45.55.43.203:3000/results?key=" + k + "&from=" + sessionStorage.LanguageFrom + "&to=" + sessionStorage.LanguageFrom, true);
     httpRequest.send(null);
   }
 
